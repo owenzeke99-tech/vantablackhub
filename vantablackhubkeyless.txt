@@ -1,0 +1,252 @@
+-- Vantablack Hub - Modern Key System (With Auto-Save & Custom Link)
+local CorrectKey = "VantaBlackHubKeyHsod - Janwoowjenekdodjdjs"
+local TargetScriptUrl = "https://raw.githubusercontent.com/tranduykhanh08428-web/VantablackHub/refs/heads/main/Stealanegg.lua.txt"
+local GetKeyUrl = "https://link4m.net/BrHGCs3x"
+
+-- Tên file lưu key ẩn trong thư mục của executor
+local SaveFileName = "VantablackHub_KeyData.json"
+
+-- Hàm kiểm tra xem key đã lưu còn hạn 24 giờ hay không
+local function HasValidSavedKey()
+    if readfile and isfile and isfile(SaveFileName) then
+        local success, data = pcall(function()
+            return game:GetService("HttpService"):JSONDecode(readfile(SaveFileName))
+        end)
+        if success and data and data.Key == CorrectKey and data.Time then
+            -- 86400 giây tương đương với 24 giờ
+            if os.time() - data.Time < 86400 then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+-- Hàm lưu key khi nhập đúng
+local function SaveKey()
+    if writefile then
+        local data = {
+            Key = CorrectKey,
+            Time = os.time()
+        }
+        pcall(function()
+            writefile(SaveFileName, game:GetService("HttpService"):JSONEncode(data))
+        end)
+    end
+end
+
+-- Nếu đã lưu key hợp lệ trong vòng 24h thì bỏ qua bảng Key System và chạy thẳng script chính
+if HasValidSavedKey() then
+    loadstring(game:HttpGet(TargetScriptUrl))()
+    return
+end
+
+-- Xóa UI cũ nếu có tránh trùng lặp
+if game.CoreGui:FindFirstChild("VantaKeySystem") then
+    game.CoreGui.VantaKeySystem:Destroy()
+end
+
+-- Khởi tạo ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "VantaKeySystem"
+ScreenGui.Parent = game.CoreGui
+ScreenGui.ResetOnSpawn = false
+
+-- Khung chính (Main Frame)
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 18) -- Đen tuyền sang trọng
+MainFrame.BorderSizePixel = 0
+MainFrame.Position = UDim2.new(0.5, -210, 0.5, -135)
+MainFrame.Size = UDim2.new(0, 420, 0, 275)
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 14)
+MainCorner.Parent = MainFrame
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Color3.fromRGB(45, 45, 55)
+MainStroke.Thickness = 1.5
+MainStroke.Parent = MainFrame
+
+-- Tiêu đề chính (Title)
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Parent = MainFrame
+Title.BackgroundTransparency = 1.00
+Title.Position = UDim2.new(0, 0, 0, 18)
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Font = Enum.Font.GothamBold
+Title.Text = "VANTABLACK HUB"
+Title.TextColor3 = Color3.fromRGB(240, 240, 255)
+Title.TextSize = 22.00
+
+local TitleGlow = Instance.new("UIStroke")
+TitleGlow.Color = Color3.fromRGB(90, 90, 120)
+TitleGlow.Transparency = 0.4
+TitleGlow.Parent = Title
+
+-- Dòng phụ đề (Subtitle)
+local SubTitle = Instance.new("TextLabel")
+SubTitle.Name = "SubTitle"
+SubTitle.Parent = MainFrame
+SubTitle.BackgroundTransparency = 1.00
+SubTitle.Position = UDim2.new(0, 0, 0, 48)
+SubTitle.Size = UDim2.new(1, 0, 0, 20)
+SubTitle.Font = Enum.Font.GothamMedium
+SubTitle.Text = "Please Enter Your Key Below"
+SubTitle.TextColor3 = Color3.fromRGB(130, 130, 150)
+SubTitle.TextSize = 13.00
+
+-- Ô nhập mật khẩu (TextBox Holder)
+local TextBoxHolder = Instance.new("Frame")
+TextBoxHolder.Name = "TextBoxHolder"
+TextBoxHolder.Parent = MainFrame
+TextBoxHolder.BackgroundColor3 = Color3.fromRGB(24, 24, 29)
+TextBoxHolder.Position = UDim2.new(0.08, 0, 0, 82)
+TextBoxHolder.Size = UDim2.new(0.84, 0, 0, 46)
+
+local HolderCorner = Instance.new("UICorner")
+HolderCorner.CornerRadius = UDim.new(0, 10)
+HolderCorner.Parent = TextBoxHolder
+
+local HolderStroke = Instance.new("UIStroke")
+HolderStroke.Color = Color3.fromRGB(50, 50, 65)
+HolderStroke.Thickness = 1
+HolderStroke.Parent = TextBoxHolder
+
+local TextBox = Instance.new("TextBox")
+TextBox.Parent = TextBoxHolder
+TextBox.BackgroundTransparency = 1.00
+TextBox.Position = UDim2.new(0.04, 0, 0, 0)
+TextBox.Size = UDim2.new(0.92, 0, 1, 0)
+TextBox.Font = Enum.Font.GothamMedium
+TextBox.PlaceholderText = "Enter key here..."
+TextBox.Text = ""
+TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextBox.PlaceholderColor3 = Color3.fromRGB(110, 110, 130)
+TextBox.TextSize = 14.00
+
+-- Nút Xác Nhận (Check Key)
+local SubmitBtn = Instance.new("TextButton")
+SubmitBtn.Name = "SubmitBtn"
+SubmitBtn.Parent = MainFrame
+SubmitBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+SubmitBtn.Position = UDim2.new(0.08, 0, 0, 146)
+SubmitBtn.Size = UDim2.new(0.50, -5, 0, 42)
+SubmitBtn.Font = Enum.Font.GothamBold
+SubmitBtn.Text = "Check Key"
+SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+SubmitBtn.TextSize = 14.00
+SubmitBtn.AutoButtonColor = false
+
+local SubmitCorner = Instance.new("UICorner")
+SubmitCorner.CornerRadius = UDim.new(0, 10)
+SubmitCorner.Parent = SubmitBtn
+
+local SubmitStroke = Instance.new("UIStroke")
+SubmitStroke.Color = Color3.fromRGB(65, 65, 80)
+SubmitStroke.Thickness = 1
+SubmitStroke.Parent = SubmitBtn
+
+-- Nút Lấy Key (Get Key)
+local GetKeyBtn = Instance.new("TextButton")
+GetKeyBtn.Name = "GetKeyBtn"
+GetKeyBtn.Parent = MainFrame
+GetKeyBtn.BackgroundColor3 = Color3.fromRGB(24, 24, 29)
+GetKeyBtn.Position = UDim2.new(0.58, 0, 0, 146)
+GetKeyBtn.Size = UDim2.new(0.34, 0, 0, 42)
+GetKeyBtn.Font = Enum.Font.GothamMedium
+GetKeyBtn.Text = "Get Key"
+GetKeyBtn.TextColor3 = Color3.fromRGB(180, 180, 200)
+GetKeyBtn.TextSize = 14.00
+GetKeyBtn.AutoButtonColor = false
+
+local GetKeyCorner = Instance.new("UICorner")
+GetKeyCorner.CornerRadius = UDim.new(0, 10)
+GetKeyCorner.Parent = GetKeyBtn
+
+local GetKeyStroke = Instance.new("UIStroke")
+GetKeyStroke.Color = Color3.fromRGB(45, 45, 60)
+GetKeyStroke.Thickness = 1
+GetKeyStroke.Parent = GetKeyBtn
+
+-- Thông báo trạng thái (Status Label)
+local StatusLabel = Instance.new("TextLabel")
+StatusLabel.Name = "StatusLabel"
+StatusLabel.Parent = MainFrame
+StatusLabel.BackgroundTransparency = 1.00
+StatusLabel.Position = UDim2.new(0.08, 0, 0, 210)
+StatusLabel.Size = UDim2.new(0.84, 0, 0, 25)
+StatusLabel.Font = Enum.Font.GothamMedium
+StatusLabel.Text = ""
+StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
+StatusLabel.TextSize = 13.00
+
+-- Hiệu ứng rê chuột
+SubmitBtn.MouseEnter:Connect(function()
+    game:GetService("TweenService"):Create(SubmitBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(55, 55, 70)}):Play()
+end)
+SubmitBtn.MouseLeave:Connect(function()
+    game:GetService("TweenService"):Create(SubmitBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 50)}):Play()
+end)
+
+GetKeyBtn.MouseEnter:Connect(function()
+    game:GetService("TweenService"):Create(GetKeyBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 45), TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+end)
+GetKeyBtn.MouseLeave:Connect(function()
+    game:GetService("TweenService"):Create(GetKeyBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(24, 24, 29), TextColor3 = Color3.fromRGB(180, 180, 200)}):Play()
+end)
+
+-- Hiệu ứng lắc bảng khi sai key
+local function ShakeWindow()
+    local originalPos = UDim2.new(0.5, -210, 0.5, -135)
+    local tweenInfo = TweenInfo.new(0.05, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+    local ts = game:GetService("TweenService")
+    
+    ts:Create(MainFrame, tweenInfo, {Position = originalPos + UDim2.new(0, -8, 0, 0)}):Play()
+    task.wait(0.06)
+    ts:Create(MainFrame, tweenInfo, {Position = originalPos + UDim2.new(0, 8, 0, 0)}):Play()
+    task.wait(0.06)
+    ts:Create(MainFrame, tweenInfo, {Position = originalPos + UDim2.new(0, -5, 0, 0)}):Play()
+    task.wait(0.06)
+    ts:Create(MainFrame, tweenInfo, {Position = originalPos + UDim2.new(0, 5, 0, 0)}):Play()
+    task.wait(0.06)
+    ts:Create(MainFrame, tweenInfo, {Position = originalPos}):Play()
+end
+
+-- Xử lý logic Xác Nhận Key
+SubmitBtn.MouseButton1Click:Connect(function()
+    if TextBox.Text == CorrectKey then
+        StatusLabel.TextColor3 = Color3.fromRGB(90, 255, 130)
+        StatusLabel.Text = "Success! Loading script..."
+        
+        -- Lưu key để hệ thống tự ghi nhớ
+        SaveKey()
+        
+        local tweenOut = game:GetService("TweenService"):Create(MainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1})
+        tweenOut:Play()
+        task.wait(0.3)
+        ScreenGui:Destroy()
+        
+        loadstring(game:HttpGet(TargetScriptUrl))()
+    else
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
+        StatusLabel.Text = "Incorrect Key! Please try again."
+        TextBox.Text = ""
+        coroutine.wrap(ShakeWindow)()
+    end
+end)
+
+-- Xử lý logic Lấy Key (Mở link Link4m của bạn)
+GetKeyBtn.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard(GetKeyUrl)
+        StatusLabel.TextColor3 = Color3.fromRGB(90, 200, 255)
+        StatusLabel.Text = "Key link copied to clipboard!"
+    else
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 180, 90)
+        StatusLabel.Text = "Your executor does not support clipboard."
+    end
+end)
